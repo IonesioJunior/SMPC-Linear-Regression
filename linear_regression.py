@@ -16,30 +16,11 @@ import time
 hook = sy.TorchHook(torch)
 
 
-bob = gr.WebsocketGridClient(hook, "http://localhost:5000", id="Bob")
-alice = gr.WebsocketGridClient(hook, "http://localhost:5001", id="Alice")
-crypto_provider = gr.WebsocketGridClient(hook, "http://localhost:5002", id="crypto")
+bob = gr.WebsocketGridClient(hook, "ws://localhost:3000")
+alice = gr.WebsocketGridClient(hook, "ws://localhost:3001")
+crypto_provider = gr.WebsocketGridClient(hook, "ws://localhost:3002")
 
-bob.connect()
-alice.connect()
-crypto_provider.connect()
-
-# Bob knows alice and crypto provider
-bob.connect_grid_node(alice.uri, alice.id)
-time.sleep(0.5)
-bob.connect_grid_node(crypto_provider.uri, crypto_provider.id)
-time.sleep(0.5)
-
-# Alice knows bob and crypto provider
-alice.connect_grid_node(crypto_provider.uri, crypto_provider.id)
-time.sleep(0.5)
-alice.connect_grid_node(bob.uri, bob.id)
-time.sleep(0.5)
-
-#Crypto provider knows bob and alice
-crypto_provider.connect_grid_node(alice.uri, alice.id)
-time.sleep(0.5)
-crypto_provider.connect_grid_node(bob.uri, bob.id)
+gr.utils.connect_all_nodes([bob, alice, crypto_provider])
 
 x_data = Variable(torch.Tensor( [ [1.5],
                                   [2.5],
